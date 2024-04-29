@@ -18,7 +18,7 @@
 #include "dong_core/sensor.h" 
 #include "time.h"
 
-#define CONTROL_MOTOR_SPEED_FREQUENCY          10   //hz
+#define CONTROL_MOTOR_SPEED_FREQUENCY          30   //hz
 #define CONTROL_MOTOR_TIMEOUT                  500  //ms
 #define IMU_PUBLISH_FREQUENCY                  200  //hz
 #define CMD_VEL_PUBLISH_FREQUENCY              30   //hz
@@ -34,14 +34,15 @@
 #define WHEEL_SEPARATION                 0.160 //두배 아닌가? 
 #define TURNING_RADIUS                   0.080 
 
-#define MAX_LINEAR_VELOCITY              (WHEEL_RADIUS * 2 * 3.14159265359 * 61 / 60) // m/s  (BURGER : 61[rpm], WAFFLE : 77[rpm])
-#define MAX_ANGULAR_VELOCITY             (MAX_LINEAR_VELOCITY / TURNING_RADIUS)       // rad/s
+#define MAX_LINEAR_VELOCITY              300//(WHEEL_RADIUS * 2 * 3.14159265359 * 61 / 60) // m/s  (BURGER : 61[rpm], WAFFLE : 77[rpm])
+#define MAX_ANGULAR_VELOCITY             50//(MAX_LINEAR_VELOCITY / TURNING_RADIUS)       // rad/s
 
-#define MIN_LINEAR_VELOCITY              -MAX_LINEAR_VELOCITY  
-#define MIN_ANGULAR_VELOCITY             -MAX_ANGULAR_VELOCITY 
+#define MIN_LINEAR_VELOCITY             -300 //-MAX_LINEAR_VELOCITY  
+#define MIN_ANGULAR_VELOCITY            -50 //-MAX_ANGULAR_VELOCITY 
+
 #define LEFT                             0
 #define RIGHT                            1
-#define TURNING_RADIUS                   0.080 
+
 #define TICK2RAD                         0.001533981
 #define WHEEL_TO_WHEEL_D 0.028
 
@@ -130,15 +131,16 @@ int main(int argc, char* argv[])
   turtlebot3_msgs::SensorState sensor_state_msg;
   dong_core::sensor sensor_msg;
   sensor_msgs::Imu imu_data_msg;
-  ros::Subscriber cmd_vel_sub = nh.subscribe("cmd_vel", 1, commandVelocityCallback);
+  ros::Subscriber cmd_vel_sub = nh.subscribe("cmd_vel", 100, commandVelocityCallback);
   ros::Publisher odom_pub = nh.advertise<nav_msgs::Odometry >("odom", 1);//여기서 odom pub하면 slam쪽에서 false로 돌려도 될듯?
-  ros::Publisher cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel_serial", 1);
-  ros::Publisher joint_states_pub = nh.advertise<turtlebot3_msgs::SensorState>("joint_states", 1);
+  ros::Publisher cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel_serial", 100);
+  //ros::Publisher joint_states_pub = nh.advertise<turtlebot3_msgs::SensorState>("joint_states", 1);
+  ros::Publisher joint_states_pub = nh.advertise<sensor_msgs::JointState>("joint_states", 1);
   ros::Subscriber sensor_sub = nh.subscribe("sensor_encoder", 5, msgCallback);
   ros::Publisher sensor_pub = nh.advertise<dong_core::sensor >("sensor_encoder_1", 5);
-  ros::Publisher imu_data_pub = nh.advertise<sensor_msgs::Imu>("imu", 1); //imu 토픽을 바꿈
+  //ros::Publisher imu_data_pub = nh.advertise<sensor_msgs::Imu>("imu", 1); //imu 토픽을 바꿈
 	tf::TransformBroadcaster br;
-  void publishImuMsg(void);
+  //void publishImuMsg(void);
 
   char get_prefix[10];
   std::string get_tf_prefix = get_prefix;
@@ -147,7 +149,7 @@ int main(int argc, char* argv[])
   char joint_state_header_frame_id[30];
   tf::Transform transform;
   std::string turtle_name;
-  turtle_name = argv[1];
+ // turtle_name = argv[1];
   tf_broadcaster.sendTransform(odom_tf);
   double x = 0.0;
   double y = 0.0;
@@ -162,10 +164,12 @@ int main(int argc, char* argv[])
     if (isChecked == false)
     {
       nh.getParam("tf_prefix",get_tf_prefix);
+
       if (!strcmp(get_tf_prefix.c_str(), ""))
       {
         sprintf(odom_header_frame_id, "odom");
         sprintf(odom_child_frame_id, "footprint");  
+        sprintf(joint_state_header_frame_id, "base_link");//추가사항
         //sprintf(imu_frame_id, "imu_link");
       }
       else
@@ -176,6 +180,7 @@ int main(int argc, char* argv[])
         strcat(odom_header_frame_id, "/odom");
         //strcat(imu_frame_id, "/imu_link");
         strcat(odom_child_frame_id, "/footprint");
+        strcat(joint_state_header_frame_id, "/base_link");//추가사항 
       }
       isChecked = true;
     }

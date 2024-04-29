@@ -80,7 +80,8 @@ sensor_msgs::JointState joint_states;
 tf::TransformBroadcaster *br;
 tf::Transform transform;
 
-void broadcast_dummy_to_base_link_transform() {
+void broadcast_dummy_to_base_link_transform() 
+{
   transform.setOrigin(tf::Vector3(0.0, 0.0, 0.0));
   tf::Quaternion q;
   q.setRPY(0, 0, 0);
