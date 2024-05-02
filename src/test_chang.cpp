@@ -111,19 +111,19 @@ void commandVelocityCallback(const geometry_msgs::Twist& cmd_vel_msg)
 
 }
 
-void msgCallback(const dong_core::sensor::ConstPtr& msg)
-{
-  left_encoder = msg->left_encoder;
-  right_encoder = msg->right_encoder;
-  //yaw_angle = msg->yaw_angle;
- // pitch_angle = msg->pitch_angle;
-  //roll_angle = msg->roll_angle;  
-  flag = 1;
-}
+// void msgCallback(const dong_core::sensor::ConstPtr& msg)
+// {
+//   left_encoder = msg->left_encoder;
+//   right_encoder = msg->right_encoder;
+//   //yaw_angle = msg->yaw_angle;
+//  // pitch_angle = msg->pitch_angle;
+//   //roll_angle = msg->roll_angle;  
+//   flag = 1;
+// }
 
 int main(int argc, char* argv[])
 {
-  ros::init(argc, argv, "ing");
+  ros::init(argc, argv, "test_chang");
   ros::NodeHandle nh;
   geometry_msgs::Twist twist;
   tf::TransformBroadcaster tf_broadcaster;
@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
   ros::Publisher cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel_serial", 100);
   //ros::Publisher joint_states_pub = nh.advertise<turtlebot3_msgs::SensorState>("joint_states", 1);
   ros::Publisher joint_states_pub = nh.advertise<sensor_msgs::JointState>("joint_states", 1);
-  ros::Subscriber sensor_sub = nh.subscribe("sensor_encoder", 5, msgCallback);
+  //ros::Subscriber sensor_sub = nh.subscribe("sensor_encoder", 5, msgCallback);
   ros::Publisher sensor_pub = nh.advertise<dong_core::sensor >("sensor_encoder_1", 5);
   //ros::Publisher imu_data_pub = nh.advertise<sensor_msgs::Imu>("imu", 1); //imu 토픽을 바꿈
 	tf::TransformBroadcaster br;
@@ -203,28 +203,22 @@ int main(int argc, char* argv[])
     {
       //sensor_msg.quest = true;
       //sensor_pub.publish(sensor_msg);
-
-      if(flag == 1)
-      {
-        updateMotorInfo(left_encoder,right_encoder);
-        sampling = 0.001*float(t-tTime[2]);
-        //("%f",sampling);
-        calcOdometry();
-        updateOdometry(); 
-        odom.header.stamp = ros::Time::now();
-        odom_pub.publish(odom);
-        updateTF(odom_tf);
-        odom_tf.header.stamp = ros::Time::now();
-        tf_broadcaster.sendTransform(odom_tf);
-        updateJointStates();
-        joint_states.header.stamp = ros::Time::now();
-        joint_states_pub.publish(joint_states);
-        flag = 0;
-      }
-
+      updateMotorInfo(left_encoder,right_encoder);
+      sampling = 0.001*float(t-tTime[2]);
+      //ROS_INFO("%f",sampling);
+      calcOdometry();
+      updateOdometry(); 
+      odom.header.stamp = ros::Time::now();
+      odom_pub.publish(odom);
+      updateTF(odom_tf);
+      odom_tf.header.stamp = ros::Time::now();
+      tf_broadcaster.sendTransform(odom_tf);
+      updateJointStates();
+      joint_states.header.stamp = ros::Time::now();
+      joint_states_pub.publish(joint_states);
+      flag = 0;
       tTime[2] = t;
     }
-
   }
   return 0;
 }
@@ -313,6 +307,8 @@ bool calcOdometry(void)
     // 바퀴 회전량을 거리로 변환
     wheel_l = (double)last_diff_tick[LEFT] * sampling;
     wheel_r = (double)last_diff_tick[RIGHT] * sampling;
+    ROS_INFO("wheel_l:%f, wheel_r:%f,",wheel_l,wheel_r);
+    
     wheel_l_distance = WHEEL_RADIUS * wheel_l * 2 * PI / 360.0;
     wheel_r_distance = WHEEL_RADIUS * wheel_r * 2 * PI / 360.0;
 

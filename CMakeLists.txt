@@ -49,3 +49,7 @@ add_dependencies(chang_core chang_serial_generate_messages_cpp)
 add_executable(ing src/ing.cpp)
 target_link_libraries(ing ${catkin_LIBRARIES})
 add_dependencies(ing chang_serial_generate_messages_cpp)
+
+add_executable(test_chang src/test_chang.cpp)
+target_link_libraries(test_chang ${catkin_LIBRARIES})
+add_dependencies(test_chang chang_serial_generate_messages_cpp)
