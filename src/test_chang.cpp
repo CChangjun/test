@@ -79,7 +79,7 @@ cmd_flag = 1;
 
 int main(int argc, char* argv[])
 {
-ros::init(argc, argv, "core_serial");
+ros::init(argc, argv, "test_chang");
 ros::NodeHandle nh;
 geometry_msgs::Twist twist;
 
