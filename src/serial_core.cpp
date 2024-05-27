@@ -100,6 +100,7 @@ int main(int argc, char **argv)
   {
 
       ser.setPort("/dev/ttyFT232");
+      //ser.setPort("/dev/ttyATmegaHTNC");
       //ser.setPort("/dev/ttySTM32");
       ser.setBaudrate(115200);
       serial::Timeout to = serial::Timeout::simpleTimeout(2000);

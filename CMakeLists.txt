@@ -35,6 +35,7 @@ catkin_package(
 )##catkin_depends에 serial 추가 
 
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -53,3 +54,5 @@ add_dependencies(ing chang_serial_generate_messages_cpp)
 add_executable(test_chang src/test_chang.cpp)
 target_link_libraries(test_chang ${catkin_LIBRARIES})
 add_dependencies(test_chang chang_serial_generate_messages_cpp)
+
+
