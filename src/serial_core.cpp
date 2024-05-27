@@ -98,7 +98,9 @@ int main(int argc, char **argv)
 
   try
   {
+
       ser.setPort("/dev/ttyFT232");
+      //ser.setPort("/dev/ttySTM32");
       ser.setBaudrate(115200);
       serial::Timeout to = serial::Timeout::simpleTimeout(2000);
       ser.setTimeout(to);
